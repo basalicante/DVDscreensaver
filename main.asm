@@ -16,17 +16,29 @@ include bios.asm
 	ld a,(FORCLR)
 	ld (c_bdrclr),a
 	
+	//set screen colors to 0
 	xor a
 	ld (BAKCLR),a
 	ld (BDRCLR),a
 	
-	ld a, 60 //initial wait
+	ld a, 60 //initial wait before starting to bounce
 	ld (wait),a
 		
+	//screen 2
 	ld ix, CHGMOD
 	ld a,2
 	call CALL_BIOS
 	
+
+	//set R#1 to 01100010b
+	//0
+	//1 BL  Screen enabled
+	//1 IE0 Set interrupt from vertical retrace
+	//0 M1
+	//0 M2
+	//0
+	//1 SI  Sprite size 16x16
+	//0 MAG Sprites normal size
 	ld ix, WRTVDP
 	ld c, 1
 	ld b, 01100010b
@@ -34,37 +46,40 @@ include bios.asm
 	
 	
 	//load sprites
-	//move sprite data to 0x4000
+	//move sprite data from page 0 to page 1 (0x4000)
+	//because the BIOS is also on page 0 and the processor
+	//wouldn't see the sprite data when activating the BIOS page.
 	ld hl, DVD_SPRITE
 	ld de, 0x4000
 	ld bc, 8*32
 	LDIR
-	//move sprite data to vram	
-	
 
+
+	
 	ld ix, CALPAT
 	xor a
 	call CALL_BIOS
 	ex de,hl				//pattern table address in DE
 
+	//move sprite data to vram	
 	ld ix, LDIRVM
 	ld hl, 0x4000
 	ld bc, 8 * 32
 	call CALL_BIOS
 	
-	//center logo
+	//calculate pos for center of screen
 	ld a, (256/2) - (64/2)
 	ld (pos_x),a
 	ld a, (192/2) - (32/2)
 	ld (pos_y),a
 	
-	//initial direction
+	//initial direction ( right/down)
 	ld a,1
 	ld (dir_x),a
 	ld (dir_y),a
 	
 	call set_attrib_pattern_and_color
-		
+	
 LOOP:
 	halt
 		
@@ -77,6 +92,7 @@ LOOP:
 	ld (wait),a
 [4]	sra a
 [2]	inc a
+
 	ld (color),a
 	
 	call position_sprites
@@ -110,12 +126,13 @@ LOOP:
 	//check for key
 	ld ix, CHSNS
 	call CALL_BIOS
-	jp z, LOOP
+	jp z, LOOP				//back to main LOOP if no key in buffer
 	
+	//clean buffer
 	ld ix, KILBUF
 	call CALL_BIOS
 	
-	
+	//restore colors and screen
 	ld a,(c_bakclr)
 	ld (BAKCLR),a
 	ld a,(c_bdrclr)
@@ -124,7 +141,7 @@ LOOP:
 	ld a,0
 	call CALL_BIOS
 		
-	ret
+	ret				//return to msxdos
 
 bounce_h
 	ld a,(dir_x)
@@ -161,6 +178,9 @@ reverse_a
 	ret
 
 
+	//calculate positions for all 8 sprites
+	//write them to the attribute table in RAM
+	//copy the table to VRAM
 position_sprites
 	
 	ld hl, attrib
@@ -190,20 +210,22 @@ position_sprites
 [3] inc hl
 [16] inc d
 	djnz .loop2
-	
-	//copy to VRAM
-	
+
+	//get attribute table address		
 	ld ix, CALATR
 	xor a
-	call CALL_BIOS
-	ex de,hl				//attribute table address in DE
+	call CALL_BIOS			//attribute table address in HL
+	ex de,hl				//and exchange with DE
 	ld ix, LDIRVM
 	ld hl, attrib
 	ld bc, 8 * 4
-	call CALL_BIOS
+	call CALL_BIOS			//copy attribute table to VRAM
 	ret
 
 	
+	//write pattern and color data to RAM
+	//this will be copied over to the attribute table
+	// of the VRAM when calling position_sprites.
 set_attrib_pattern_and_color
 	ld a,(color)
 	ld c,a
