@@ -91,7 +91,7 @@ LOOP:
 	dec a
 	ld (wait),a
 [4]	sra a
-[2]	inc a
+	add a,2
 
 	ld (color),a
 	
@@ -195,12 +195,22 @@ position_sprites
 	ld (hl),d
 	
 [3] inc hl
-[16] inc d
+
+	//d += 16
+	ld a, 16
+	add a,d
+	ld d,a
+
 	djnz .loop1
 	
 	ld a,(pos_x)
 	ld d,a
-[16] inc e
+
+	//e += 16
+	ld a,16
+	add a,e
+	ld e,a
+
 	ld b,4
 .loop2
 	ld (hl),e
@@ -208,7 +218,12 @@ position_sprites
 	ld (hl),d
 	
 [3] inc hl
-[16] inc d
+	
+	//d += 16
+	ld a, 16
+	add a,d
+	ld d,a
+
 	djnz .loop2
 
 	//get attribute table address		
