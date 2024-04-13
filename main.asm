@@ -6,10 +6,6 @@
 	
 	
 include bios.asm
-
-PATTBL = 0x3800
-ATTTBL = 0x1B00
-
 		
 	ld a,6
 	ld (color),a
@@ -44,9 +40,15 @@ ATTTBL = 0x1B00
 	ld bc, 8*32
 	LDIR
 	//move sprite data to vram	
+	
+
+	ld ix, CALPAT
+	xor a
+	call CALL_BIOS
+	ex de,hl				//pattern table address in DE
+
 	ld ix, LDIRVM
 	ld hl, 0x4000
-	ld de, PATTBL
 	ld bc, 8 * 32
 	call CALL_BIOS
 	
@@ -70,7 +72,7 @@ LOOP:
 	cp 0
 	jp z, .move
 	
-	//wait a bit
+	//wait a bit and flash color
 	dec a
 	ld (wait),a
 [4]	sra a
@@ -190,9 +192,13 @@ position_sprites
 	djnz .loop2
 	
 	//copy to VRAM
+	
+	ld ix, CALATR
+	xor a
+	call CALL_BIOS
+	ex de,hl				//attribute table address in DE
 	ld ix, LDIRVM
 	ld hl, attrib
-	ld de, ATTTBL
 	ld bc, 8 * 4
 	call CALL_BIOS
 	ret
