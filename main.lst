@@ -1,0 +1,723 @@
+Sjasm Z80 Assembler v0.42c - www.xl2s.tk             [2024.04.13 - 06:58:04]
+
+main.asm
+Errors: 0
+
+       1   00:0000                      	output DVD.COM
+       2   00:0100                      
+       3   00:0100                      	org 100h
+       4   00:0100                      	
+       5   00:0100  (4100)              	map 4100h
+       6   00:0100                      	
+       7   00:0100                      	
+       8   00:0100                      include bios.asm
+       1.  00:0100                      ;-----------------------------------------------------------------------------;
+       2.  00:0100                      ; File        : msx-bios.asm
+       3.  00:0100                      ; Description : Functions and system variable declarations for MSX BIOS
+       4.  00:0100                      ;
+       5.  00:0100                      ; Copyright (C) 2015 Alvaro Polo
+       6.  00:0100                      ;
+       7.  00:0100                      ; This Source Code Form is subject to the terms of the Mozilla Public
+       8.  00:0100                      ; License, v. 2.0. If a copy of the MPL was not distributed with this
+       9.  00:0100                      ; file, You can obtain one at http://mozilla.org/MPL/2.0/.
+      10.  00:0100                      ;
+      11.  00:0100                      ;-----------------------------------------------------------------------------;
+      12.  00:0100                      
+      13.  00:0100                      ;
+      14.  00:0100                      ; MSX-1 BIOS subroutines
+      15.  00:0100                      ;
+      16.  00:0100                      
+      17.  00:0100  (00:0000)           CHKRAM      equ 0x0000
+      18.  00:0100  (00:0008)           SYNCHR      equ 0x0008
+      19.  00:0100  (00:000C)           RDSLT       equ 0x000c
+      20.  00:0100  (00:0010)           CHRGTR      equ 0x0010
+      21.  00:0100  (00:0014)           WRSLT       equ 0x0014
+      22.  00:0100  (00:0018)           OUTDO       equ 0x0018
+      23.  00:0100  (00:001C)           CALSLT      equ 0x001c
+      24.  00:0100  (00:0020)           DCOMPR      equ 0x0020
+      25.  00:0100  (00:0024)           ENASLT      equ 0x0024
+      26.  00:0100  (00:0028)           GETYPR      equ 0x0028
+      27.  00:0100  (00:0030)           CALLF       equ 0x0030
+      28.  00:0100  (00:0038)           KEYINT      equ 0x0038
+      29.  00:0100                      
+      30.  00:0100  (00:003B)           INITIO      equ 0x003b
+      31.  00:0100  (00:003E)           INIFNK      equ 0x003e
+      32.  00:0100                      
+      33.  00:0100  (00:0041)           DISSCR      equ 0x0041
+      34.  00:0100  (00:0044)           ENASCR      equ 0x0044
+      35.  00:0100  (00:0047)           WRTVDP      equ 0x0047
+      36.  00:0100  (00:004A)           RDVRM       equ 0x004a
+      37.  00:0100  (00:004D)           WRTVRM      equ 0x004d
+      38.  00:0100  (00:0050)           SETRD       equ 0x0050
+      39.  00:0100  (00:0053)           SETWRT      equ 0x0053
+      40.  00:0100  (00:0056)           FILVRM      equ 0x0056
+      41.  00:0100  (00:0059)           LDIRMV      equ 0x0059
+      42.  00:0100  (00:005C)           LDIRVM      equ 0x005c
+      43.  00:0100  (00:005F)           CHGMOD      equ 0x005f
+      44.  00:0100  (00:0062)           CHGCLR      equ 0x0062
+      45.  00:0100  (00:0066)           NMI         equ 0x0066
+      46.  00:0100  (00:0069)           CLRSPR      equ 0x0069
+      47.  00:0100  (00:006C)           INITXT      equ 0x006C
+      48.  00:0100  (00:006F)           INIT32      equ 0x006f
+      49.  00:0100  (00:0072)           INIGRP      equ 0x0072
+      50.  00:0100  (00:0075)           INIMLT      equ 0x0075
+      51.  00:0100  (00:0078)           SETTXT      equ 0x0078
+      52.  00:0100  (00:007B)           SETT32      equ 0x007b
+      53.  00:0100  (00:007E)           SETGRP      equ 0x007e
+      54.  00:0100  (00:0081)           SETMLT      equ 0x0081
+      55.  00:0100  (00:0084)           CALPAT      equ 0x0084
+      56.  00:0100  (00:0087)           CALATR      equ 0x0087
+      57.  00:0100  (00:008A)           GSPSIZ      equ 0x008a
+      58.  00:0100  (00:008D)           GRPPRT      equ 0x008d
+      59.  00:0100                      
+      60.  00:0100  (00:0090)           GICINI      equ 0x0090
+      61.  00:0100  (00:0093)           WRTPSG      equ 0x0093
+      62.  00:0100  (00:0096)           RDPSG       equ 0x0096
+      63.  00:0100  (00:0099)           STRTMS      equ 0x0099
+      64.  00:0100                      
+      65.  00:0100  (00:009C)           CHSNS       equ 0x009c
+      66.  00:0100  (00:009F)           CHGET       equ 0x009f
+      67.  00:0100  (00:00A2)           CHPUT       equ 0x00a2
+      68.  00:0100  (00:00A5)           LPTOUT      equ 0x00a5
+      69.  00:0100  (00:00A8)           LPTSTT      equ 0x00a8
+      70.  00:0100  (00:00AB)           CNVCHR      equ 0x00ab
+      71.  00:0100  (00:00AE)           PINLIN      equ 0x00ae
+      72.  00:0100  (00:00B1)           INLIN       equ 0x00b1
+      73.  00:0100  (00:00B4)           QINLIN      equ 0x00b4
+      74.  00:0100  (00:00B7)           BREAKX      equ 0x00b7
+      75.  00:0100  (00:00BA)           ISCNTC      equ 0x00ba
+      76.  00:0100  (00:00BD)           CKCNTC      equ 0x00bd
+      77.  00:0100  (00:00C0)           BEEP        equ 0x00c0
+      78.  00:0100  (00:00C3)           CLS         equ 0x00c3
+      79.  00:0100  (00:00C6)           POSIT       equ 0x00c6
+      80.  00:0100  (00:00C9)           FNKSB       equ 0x00c9
+      81.  00:0100  (00:00CC)           ERAFNK      equ 0x00cc
+      82.  00:0100  (00:00CF)           DSPFNK      equ 0x00cf
+      83.  00:0100  (00:00D2)           TOTEXT      equ 0x00d2
+      84.  00:0100                      
+      85.  00:0100  (00:00D5)           GTSTCK      equ 0x00d5
+      86.  00:0100  (00:00D8)           GTTRIG      equ 0x00d8
+      87.  00:0100  (00:00DB)           GTPAD       equ 0x00db
+      88.  00:0100  (00:00DE)           GTPDL       equ 0x00de
+      89.  00:0100                      
+      90.  00:0100  (00:00E1)           TAPION      equ 0x00e1
+      91.  00:0100  (00:00E4)           TAPIN       equ 0x00e4
+      92.  00:0100  (00:00E7)           TAPIOF      equ 0x00e7
+      93.  00:0100  (00:00EA)           TAPOON      equ 0x00ea
+      94.  00:0100  (00:00ED)           TAPOUT      equ 0x00ed
+      95.  00:0100  (00:00F0)           TAPOOF      equ 0x00f0
+      96.  00:0100  (00:00F3)           STMOTR      equ 0x00f3
+      97.  00:0100                      
+      98.  00:0100  (00:00F6)           LFTQ        equ 0x00f6
+      99.  00:0100  (00:00F9)           PUTQ        equ 0x00f9
+     100.  00:0100                      
+     101.  00:0100  (00:00FC)           RIGHTC      equ 0x00fc
+     102.  00:0100  (00:00FF)           LEFTC       equ 0x00ff
+     103.  00:0100  (00:0102)           UPC         equ 0x0102
+     104.  00:0100  (00:0105)           TUPC        equ 0x0105
+     105.  00:0100  (00:0108)           DOWNC       equ 0x0108
+     106.  00:0100  (00:010B)           TDOWNC      equ 0x010b
+     107.  00:0100  (00:010E)           SCALXY      equ 0x010e
+     108.  00:0100  (00:0111)           MAPXY       equ 0x0111
+     109.  00:0100  (00:0114)           FETCHC      equ 0x0114
+     110.  00:0100  (00:0117)           STOREC      equ 0x0117
+     111.  00:0100  (00:011A)           SETATR      equ 0x011a
+     112.  00:0100  (00:011E)           READC       equ 0x011e
+     113.  00:0100  (00:0120)           SETC        equ 0x0120
+     114.  00:0100  (00:0123)           NSETCX      equ 0x0123
+     115.  00:0100  (00:0126)           GTASPC      equ 0x0126
+     116.  00:0100  (00:0129)           PNTINI      equ 0x0129
+     117.  00:0100  (00:012C)           SCANR       equ 0x012c
+     118.  00:0100  (00:012F)           SCANL       equ 0x012f
+     119.  00:0100                      
+     120.  00:0100  (00:0132)           CHGCAP      equ 0x0132
+     121.  00:0100  (00:0135)           CHGSND      equ 0x0135
+     122.  00:0100  (00:0138)           RSLREG      equ 0x0138
+     123.  00:0100  (00:013B)           WSLREG      equ 0x013b
+     124.  00:0100  (00:013E)           RDVDP       equ 0x013e
+     125.  00:0100  (00:0141)           SNSMAT      equ 0x0141
+     126.  00:0100  (00:0144)           PHYDIO      equ 0x0144
+     127.  00:0100  (00:0147)           FORMAT      equ 0x0147
+     128.  00:0100  (00:014A)           ISFLIO      equ 0x014a
+     129.  00:0100  (00:014E)           OUTDLP      equ 0x014e
+     130.  00:0100  (00:0150)           GETVCP      equ 0x0150
+     131.  00:0100  (00:0153)           GETVC2      equ 0x0153
+     132.  00:0100  (00:0156)           KILBUF      equ 0x0156
+     133.  00:0100  (00:0159)           CALBAS      equ 0x0159
+     134.  00:0100                      
+     135.  00:0100                      
+     136.  00:0100                      //MSX2. 2+, TR
+     137.  00:0100                      
+     138.  00:0100  (00:015C)           SUBROM		equ 0x015C
+     139.  00:0100  (00:015F)           EXTROM		equ 0x015F
+     140.  00:0100  (00:0162)           CHKSLZ		equ 0x0162
+     141.  00:0100  (00:0165)           CHKNEW		equ 0x0165
+     142.  00:0100  (00:0168)           EOL			equ 0x0168
+     143.  00:0100  (00:016B)           BIGFIL		equ 0x016B
+     144.  00:0100  (00:016E)           NSETRD		equ 0x016E
+     145.  00:0100  (00:0171)           NSTWRT		equ 0x0171
+     146.  00:0100  (00:0174)           NRDVRM		equ 0x0174
+     147.  00:0100  (00:0177)           NWRVRM		equ 0x0177
+     148.  00:0100  (00:017A)           RDRES		equ 0x017A
+     149.  00:0100  (00:017D)           WRRES		equ 0x017D
+     150.  00:0100  (00:0180)           CHGCPU		equ 0x0180
+     151.  00:0100  (00:0183)           GETCPU		equ 0x0183
+     152.  00:0100  (00:0186)           PCMPLY		equ 0x0186
+     153.  00:0100  (00:0189)           PCMREC		equ 0x0189
+     154.  00:0100                      
+     155.  00:0100                      
+     156.  00:0100                      ;
+     157.  00:0100                      ; MSX-1 system variables
+     158.  00:0100                      ;
+     159.  00:0100                      
+     160.  00:0100  (00:F3DB)           CLIKSW		equ 0xf3db
+     161.  00:0100  (00:F3E9)           FORCLR      equ 0xf3e9
+     162.  00:0100  (00:F3EA)           BAKCLR      equ 0xf3ea
+     163.  00:0100  (00:F3EB)           BDRCLR      equ 0xf3eb
+     164.  00:0100                      
+     165.  00:0100                      
+     166.  00:0100                      
+     167.  00:0100                      
+     168.  00:0100                      
+     169.  00:0100                      
+     170.  00:0100                      ;
+     171.  00:0100                      ; MSX-1 VRAM addresses
+     172.  00:0100                      ;
+     173.  00:0100  (00:0000)           CHRTBL		equ 0x0000
+     174.  00:0100  (00:1800)           NAMTBL		equ 0x1800
+     175.  00:0100  (00:2000)           CLRTBL		equ 0x2000
+     176.  00:0100  (00:1B00)           SPRATR		equ 0x1b00
+     177.  00:0100  (00:3800)           SPRTBL		equ 0x3800
+     178.  00:0100                      
+     179.  00:0100  (00:FC9E)           JIFFY		equ	0xFC9E
+     180.  00:0100                      
+     181.  00:0100                      
+     182.  00:0100                      ;
+     183.  00:0100                      ; MSX-2 VRAM addresses
+     184.  00:0100                      ;
+     185.  00:0100  (00:FAF6)           ACPAGE 		equ 0xFAF6
+     186.  00:0100  (00:FAF5)           DPPAGE		equ 0xFAF5
+     187.  00:0100                      
+     188.  00:0100  (00:F3DF)           RG0SAV		equ 0xF3DF
+     189.  00:0100  (00:F3E0)           RG1SAV		equ 0xF3E0
+     190.  00:0100  (00:F3E1)           RG2SAV		equ 0xF3E1
+     191.  00:0100  (00:F3E2)           RG3SAV		equ 0xF3E2
+     192.  00:0100  (00:F3E3)           RG4SAV		equ 0xF3E3
+     193.  00:0100  (00:F3E4)           RG5SAV		equ 0xF3E4
+     194.  00:0100  (00:F3E5)           RG6SAV		equ 0xF3E5
+     195.  00:0100  (00:F3E6)           RG7SAV		equ 0xF3E6
+     196.  00:0100                      
+     197.  00:0100  (00:FFE7)           RG8SAV		equ	0xFFE7	;	Mirror of VDP register 8 (Basic:VDP(9), note: +1)			
+     198.  00:0100  (00:FFE8)           RG9SAV		equ	0xFFE8	;	Mirror of VDP register 9 (Basic:VDP(10), note: +1)			
+     199.  00:0100  (00:FFE9)           RG10SA		equ	0xFFE9	;	Mirror of VDP register 10 (Basic:VDP(11), note: +1)			
+     200.  00:0100  (00:FFEA)           RG11SA		equ	0xFFEA	;	Mirror of VDP register 11 (Basic:VDP(12), note: +1)			
+     201.  00:0100  (00:FFEB)           RG12SA		equ	0xFFEB	;	Mirror of VDP register 12 (Basic:VDP(13), note: +1)			
+     202.  00:0100  (00:FFEC)           RG13SA		equ	0xFFEC	;	Mirror of VDP register 13 (Basic:VDP(14), note: +1)			
+     203.  00:0100  (00:FFED)           RG14SA		equ	0xFFED	;	Mirror of VDP register 14 (Basic:VDP(15), note: +1)			
+     204.  00:0100  (00:FFEE)           RG15SA		equ	0xFFEE	;	Mirror of VDP register 15 (Basic:VDP(16), note: +1)			
+     205.  00:0100  (00:FFEF)           RG16SA		equ	0xFFEF	;	Mirror of VDP register 16 (Basic:VDP(17), note: +1)			
+     206.  00:0100  (00:FFF0)           RG17SA		equ	0xFFF0	;	Mirror of VDP register 17 (Basic:VDP(18), note: +1)			
+     207.  00:0100  (00:FFF1)           RG18SA		equ	0xFFF1	;	Mirror of VDP register 18 (Basic:VDP(19), note: +1)			
+     208.  00:0100  (00:FFF2)           RG19SA		equ	0xFFF2	;	Mirror of VDP register 19 (Basic:VDP(20), note: +1)			
+     209.  00:0100  (00:FFF3)           RG20SA		equ	0xFFF3	;	Mirror of VDP register 20 (Basic:VDP(21), note: +1)			
+     210.  00:0100  (00:FFF4)           RG21SA		equ	0xFFF4	;	Mirror of VDP register 21 (Basic:VDP(22), note: +1)			
+     211.  00:0100  (00:FFF5)           RG22SA		equ	0xFFF5	;	Mirror of VDP register 22 (Basic:VDP(23), note: +1)			
+     212.  00:0100  (00:FFF6)           RG23SA		equ	0xFFF6	;	Mirror of VDP register 23 (Basic:VDP(24), note: +1)			
+     213.  00:0100  (00:FFF7)           ROMSLT		equ	0xFFF7	;	Main BIOS slot ID. (MSX2 and up only)			
+     214.  00:0100  (00:FFFA)           RG25SA		equ	0xFFFA	;	Mirror of VDP register 25 (Basic:VDP(26), note: +1)			
+     215.  00:0100  (00:FFFB)           RG26SA		equ	0xFFFB	;	Mirror of VDP register 26 (Basic:VDP(27), note: +1)			
+     216.  00:0100  (00:FFFC)           RG27SA		equ	0xFFFC	;	Mirror of VDP register 27 (Basic:VDP(28), note: +1)			
+     217.  00:0100                      
+     218.  00:0100                      
+     219.  00:0100  (00:FCC1)           EXPTBL0     equ 0xFCC1  ;   Slot 0: #80 = expanded, 0 = not expanded. Also main BIOS-ROM slot address.
+     220.  00:0100  (00:FCC2)           EXPTBL1     equ 0xFCC2  ;   Slot 1: #80 = expanded, 0 = not expanded. 
+     221.  00:0100  (00:FCC3)           EXPTBL2     equ 0xFCC3  ;   Slot 2: #80 = expanded, 0 = not expanded. 
+     222.  00:0100  (00:FCC4)           EXPTBL3     equ 0xFCC4  ;   Slot 3: #80 = expanded, 0 = not expanded. 
+     223.  00:0100                      
+     224.  00:0100  (00:FCC5)           SLTTBL0	    equ 0xFCC5	;	Mirror of slot 0 secondary slot selection register.
+     225.  00:0100  (00:FCC6)           SLTTBL1	    equ 0xFCC6	;	Mirror of slot 1 secondary slot selection register.
+     226.  00:0100  (00:FCC7)           SLTTBL2	    equ 0xFCC7	;	Mirror of slot 2 secondary slot selection register.
+     227.  00:0100  (00:FCC8)           SLTTBL3	    equ 0xFCC8	;	Mirror of slot 3 secondary slot selection register.
+     228.  00:0100                      
+     229.  00:0100                      
+     230.  00:0100                      
+     231.  00:0100  (00:FD9A)           H_KEYI      equ 0xFD9A  ;  
+     232.  00:0100  (00:FD9F)           H_TIMI      equ 0xFD9F  ;  vdp interrupt.
+       9   00:0100                      
+      10   00:0100  (00:3800)           PATTBL = 0x3800
+      11   00:0100  (00:1B00)           ATTTBL = 0x1B00
+      12   00:0100                      
+      13   00:0100  (00:0009)           _STROUT = 09h
+      14   00:0100                      		
+      15   00:0100  3E 06               	ld a,6
+      16   00:0102  32 24 41            	ld (color),a
+      17   00:0105                      	
+      18   00:0105                      	//backup old colors
+      19   00:0105  3A EA F3            	ld a,(BAKCLR)
+      20   00:0108  32 26 41            	ld (c_bakclr),a
+      21   00:010B  3A E9 F3            	ld a,(FORCLR)
+      22   00:010E  32 27 41            	ld (c_bdrclr),a
+      23   00:0111                      	
+      24   00:0111  AF                  	xor a
+      25   00:0112  32 EA F3            	ld (BAKCLR),a
+      26   00:0115  32 EB F3            	ld (BDRCLR),a
+      27   00:0118                      	
+      28   00:0118  3E 3C               	ld a, 60 //initial wait
+      29   00:011A  32 25 41            	ld (wait),a
+      30   00:011D                      		
+      31   00:011D  DD 21 5F 00         	ld ix, CHGMOD
+      32   00:0121  3E 02               	ld a,2
+      33   00:0123  CD 85 02            	call CALL_BIOS
+      34   00:0126                      	
+      35   00:0126  DD 21 47 00         	ld ix, WRTVDP
+      36   00:012A  0E 01               	ld c, 1
+      37   00:012C  06 62               	ld b, 01100010b
+      38   00:012E  CD 85 02            	call CALL_BIOS
+      39   00:0131                      	
+      40   00:0131                      	
+      41   00:0131                      	//load sprites
+      42   00:0131                      	//move sprite data to 0x4000
+      43   00:0131  21 8C 02            	ld hl, DVD_SPRITE
+      44   00:0134  11 00 40            	ld de, 0x4000
+      45   00:0137  01 00 01            	ld bc, 8*32
+      46   00:013A  ED B0               	LDIR
+      47   00:013C                      	//move sprite data to vram	
+      48   00:013C  DD 21 5C 00         	ld ix, LDIRVM
+      49   00:0140  21 00 40            	ld hl, 0x4000
+      50   00:0143  11 00 38            	ld de, PATTBL
+      51   00:0146  01 00 01            	ld bc, 8 * 32
+      52   00:0149  CD 85 02            	call CALL_BIOS
+      53   00:014C                      	
+      54   00:014C                      	//center logo
+      55   00:014C  3E 60               	ld a, (256/2) - (64/2)
+      56   00:014E  32 00 41            	ld (pos_x),a
+      57   00:0151  3E 50               	ld a, (192/2) - (32/2)
+      58   00:0153  32 01 41            	ld (pos_y),a
+      59   00:0156                      	
+      60   00:0156                      	//initial direction
+      61   00:0156  3E 01               	ld a,1
+      62   00:0158  32 02 41            	ld (dir_x),a
+      63   00:015B  32 03 41            	ld (dir_y),a
+      64   00:015E                      	
+      65   00:015E  CD 70 02            	call set_attrib_pattern_and_color
+      66   00:0161                      		
+      67   00:0161                      LOOP:
+      68   00:0161  76                  	halt
+      69   00:0162                      		
+      70   00:0162  3A 25 41            	ld a,(wait)
+      71   00:0165  FE 00               	cp 0
+      72   00:0167  CA 84 01            	jp z, .move
+      73   00:016A                      	
+      74   00:016A                      	//wait a bit
+      75   00:016A  3D                  	dec a
+      76   00:016B  32 25 41            	ld (wait),a
+      77   00:016E                      [4]	sra a
+      77   00:016E  CB 2F CB 2F CB 2F CB 2F 
+      78   00:0176  3C 3C               [2]	inc a
+      79   00:0178  32 24 41            	ld (color),a
+      80   00:017B                      	
+      81   00:017B  CD 0C 02            	call position_sprites
+      82   00:017E  CD 70 02            	call set_attrib_pattern_and_color
+      83   00:0181  C3 AF 01            	jp .test_keyboard
+      84   00:0184                      	
+      85   00:0184                      .move
+      86   00:0184                      	//x
+      87   00:0184  3A 00 41            	ld a,(pos_x)
+      88   00:0187  21 02 41            	ld hl, dir_x
+      89   00:018A  86                  	add a, (hl)
+      90   00:018B  32 00 41            	ld (pos_x),a
+      91   00:018E  FE 00               	cp 0
+      92   00:0190  CC D6 01            	call z, bounce_h
+      93   00:0193  FE C0               	cp 256 - 64
+      94   00:0195  CC D6 01            	call z, bounce_h
+      95   00:0198                      	
+      96   00:0198                      	//y
+      97   00:0198  3A 01 41            	ld a,(pos_y)
+      98   00:019B  21 03 41            	ld hl, dir_y
+      99   00:019E  86                  	add a, (hl)
+     100   00:019F  32 01 41            	ld (pos_y),a
+     101   00:01A2  FE 00               	cp 0
+     102   00:01A4  CC E3 01            	call z, bounce_v
+     103   00:01A7  FE A0               	cp 192 - 32
+     104   00:01A9  CC E3 01            	call z, bounce_v
+     105   00:01AC                      			
+     106   00:01AC  CD 0C 02            	call position_sprites
+     107   00:01AF                      	
+     108   00:01AF                      .test_keyboard
+     109   00:01AF                      	//check for key
+     110   00:01AF  DD 21 9C 00         	ld ix, CHSNS
+     111   00:01B3  CD 85 02            	call CALL_BIOS
+     112   00:01B6  CA 61 01            	jp z, LOOP
+     113   00:01B9                      	
+     114   00:01B9  DD 21 56 01         	ld ix, KILBUF
+     115   00:01BD  CD 85 02            	call CALL_BIOS
+     116   00:01C0                      	
+     117   00:01C0                      	
+     118   00:01C0  3A 26 41            	ld a,(c_bakclr)
+     119   00:01C3  32 EA F3            	ld (BAKCLR),a
+     120   00:01C6  3A 27 41            	ld a,(c_bdrclr)
+     121   00:01C9  32 EB F3            	ld (BDRCLR),a	
+     122   00:01CC  DD 21 5F 00         	ld ix, CHGMOD
+     123   00:01D0  3E 00               	ld a,0
+     124   00:01D2  CD 85 02            	call CALL_BIOS
+     125   00:01D5                      		
+     126   00:01D5  C9                  	ret
+     127   00:01D6                      
+     128   00:01D6                      bounce_h
+     129   00:01D6  3A 02 41            	ld a,(dir_x)
+     130   00:01D9  CD 01 02            	call reverse_a
+     131   00:01DC  32 02 41            	ld (dir_x),a
+     132   00:01DF  CD F0 01            	call change_color
+     133   00:01E2  C9                  	ret
+     134   00:01E3                      	
+     135   00:01E3                      bounce_v
+     136   00:01E3  3A 03 41            	ld a,(dir_y)
+     137   00:01E6  CD 01 02            	call reverse_a
+     138   00:01E9  32 03 41            	ld (dir_y),a
+     139   00:01EC  CD F0 01            	call change_color
+     140   00:01EF  C9                  	ret
+     141   00:01F0                      	
+     142   00:01F0                      change_color:
+     143   00:01F0  3A 24 41            	ld a,(color)
+     144   00:01F3  3C                  	inc a
+     145   00:01F4  FE 10               	cp 16
+     146   00:01F6  C2 FB 01            	jp nz, .cont
+     147   00:01F9  3E 02               	ld a,2
+     148   00:01FB                      .cont
+     149   00:01FB  32 24 41            	ld (color),a
+     150   00:01FE  C3 70 02            	jp set_attrib_pattern_and_color
+     151   00:0201                      	
+     152   00:0201                      
+     153   00:0201                      reverse_a
+     154   00:0201  FE FF               	cp -1
+     155   00:0203  CA 09 02            	jp z, .set1
+     156   00:0206  3E FF               	ld a, -1
+     157   00:0208  C9                  	ret
+     158   00:0209                      .set1
+     159   00:0209  3E 01               	ld a,1
+     160   00:020B  C9                  	ret
+     161   00:020C                      
+     162   00:020C                      
+     163   00:020C                      position_sprites
+     164   00:020C                      	
+     165   00:020C  21 04 41            	ld hl, attrib
+     166   00:020F  06 04               	ld b,4
+     167   00:0211  3A 00 41            	ld a,(pos_x)
+     168   00:0214  57                  	ld d,a
+     169   00:0215  3A 01 41            	ld a,(pos_y)
+     170   00:0218  5F                  	ld e,a
+     171   00:0219                      .loop1
+     172   00:0219  73                  	ld (hl),e
+     173   00:021A  23                  	inc hl
+     174   00:021B  72                  	ld (hl),d
+     175   00:021C                      	
+     176   00:021C  23 23 23            [3] inc hl
+     177   00:021F                      [16] inc d
+     177   00:021F  14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 
+     178   00:022F  10 E8               	djnz .loop1
+     179   00:0231                      	
+     180   00:0231  3A 00 41            	ld a,(pos_x)
+     181   00:0234  57                  	ld d,a
+     182   00:0235                      [16] inc e
+     182   00:0235  1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 
+     183   00:0245  06 04               	ld b,4
+     184   00:0247                      .loop2
+     185   00:0247  73                  	ld (hl),e
+     186   00:0248  23                  	inc hl
+     187   00:0249  72                  	ld (hl),d
+     188   00:024A                      	
+     189   00:024A  23 23 23            [3] inc hl
+     190   00:024D                      [16] inc d
+     190   00:024D  14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 
+     191   00:025D  10 E8               	djnz .loop2
+     192   00:025F                      	
+     193   00:025F                      	//copy to VRAM
+     194   00:025F  DD 21 5C 00         	ld ix, LDIRVM
+     195   00:0263  21 04 41            	ld hl, attrib
+     196   00:0266  11 00 1B            	ld de, ATTTBL
+     197   00:0269  01 20 00            	ld bc, 8 * 4
+     198   00:026C  CD 85 02            	call CALL_BIOS
+     199   00:026F  C9                  	ret
+     200   00:0270                      
+     201   00:0270                      	
+     202   00:0270                      set_attrib_pattern_and_color
+     203   00:0270  3A 24 41            	ld a,(color)
+     204   00:0273  4F                  	ld c,a
+     205   00:0274  21 06 41            	ld hl, attrib + 2
+     206   00:0277  AF                  	xor a
+     207   00:0278  06 08               	ld b, 8
+     208   00:027A                      .loop
+     209   00:027A  77                  	ld (hl),a
+     210   00:027B  C6 04               	add a,4
+     211   00:027D                      	
+     212   00:027D  23                  	inc hl
+     213   00:027E  71                  	ld (hl),c
+     214   00:027F                      	
+     215   00:027F  23 23 23            [3]	inc hl
+     216   00:0282  10 F6               	djnz .loop
+     217   00:0284  C9                  	ret
+     218   00:0285                      	
+     219   00:0285                      CALL_BIOS
+     220   00:0285  FD 21 00 00         	ld iy, 0
+     221   00:0289  C3 1C 00            	jp CALSLT
+     222   00:028C                      	
+     223   00:028C                      
+     224   00:028C  (00:4100)           pos_x 	#1
+     225   00:028C  (00:4101)           pos_y 	#1
+     226   00:028C  (00:4102)           dir_x 	#1
+     227   00:028C  (00:4103)           dir_y 	#1
+     228   00:028C  (00:4104)           attrib  #4*8 //8 sprites
+     229   00:028C  (00:4124)           color	#1
+     230   00:028C  (00:4125)           wait	#1
+     231   00:028C                      
+     232   00:028C  (00:4126)           c_bakclr	#1
+     233   00:028C  (00:4127)           c_bdrclr	#1
+     234   00:028C                      
+     235   00:028C                      DVD_SPRITE:		
+     236   00:028C                              DB $1F,$1F,$1F,$1F,$00,$3F,$3F,$3F,$3F,$7F,$7F,$7E,$7E,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$0F,$81,$00,$00,$00,$00,$01,$03,$0F,$FF,$FF,$FE
+     236   00:028C  1F 1F 1F 1F 00 3F 3F 3F 3F 7F 7F 7E 7E FF FF FF 
+     236   00:029C  FF FF FF FF 0F 81 00 00 00 00 01 03 0F FF FF FE 
+     237   00:02AC                              DB $FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE,$FE,$FE,$FC,$F8,$F0,$E0,$80,$00,$F0,$F8,$F8,$F8,$FC,$FC,$FC,$FE,$FE,$7E,$7F,$7F,$3F,$3F,$3F,$1F
+     237   00:02AC  FF FF FF FF FF FF FE FE FE FE FC F8 F0 E0 80 00 
+     237   00:02BC  F0 F8 F8 F8 FC FC FC FE FE 7E 7F 7F 3F 3F 3F 1F 
+     238   00:02CC                              DB $00,$00,$01,$03,$07,$0F,$1F,$3F,$7F,$FE,$FC,$F8,$F0,$E0,$C0,$80,$7F,$FF,$FF,$FF,$F0,$EF,$CF,$8F,$0F,$1F,$1F,$1F,$1F,$3F,$3F,$3F
+     238   00:02CC  00 00 01 03 07 0F 1F 3F 7F FE FC F8 F0 E0 C0 80 
+     238   00:02DC  7F FF FF FF F0 EF CF 8F 0F 1F 1F 1F 1F 3F 3F 3F 
+     239   00:02EC                              DB $FE,$FF,$FF,$FF,$03,$E0,$C0,$C0,$C0,$C0,$C0,$80,$83,$FF,$FF,$FF,$00,$E0,$FC,$FE,$FF,$7F,$3F,$3F,$3F,$3F,$7F,$FE,$FC,$F8,$E0,$80
+     239   00:02EC  FE FF FF FF 03 E0 C0 C0 C0 C0 C0 80 83 FF FF FF 
+     239   00:02FC  00 E0 FC FE FF 7F 3F 3F 3F 3F 7F FE FC F8 E0 80 
+     240   00:030C                              DB $FF,$00,$00,$00,$00,$03,$3F,$7F,$7F,$3F,$03,$00,$00,$00,$00,$00,$E0,$00,$00,$00,$0F,$FF,$FE,$FE,$FE,$FF,$FF,$0F,$00,$00,$00,$00
+     240   00:030C  FF 00 00 00 00 03 3F 7F 7F 3F 03 00 00 00 00 00 
+     240   00:031C  E0 00 00 00 0F FF FE FE FE FF FF 0F 00 00 00 00 
+     241   00:032C                              DB $00,$00,$00,$00,$FF,$FF,$EE,$EE,$EE,$5E,$BE,$FF,$00,$00,$00,$00,$1F,$1E,$0C,$00,$FF,$FF,$F0,$F7,$F7,$F7,$F0,$FF,$00,$00,$00,$00
+     241   00:032C  00 00 00 00 FF FF EE EE EE 5E BE FF 00 00 00 00 
+     241   00:033C  1F 1E 0C 00 FF FF F0 F7 F7 F7 F0 FF 00 00 00 00 
+     242   00:034C                              DB $00,$00,$00,$00,$FF,$FF,$F8,$7B,$78,$7B,$F8,$FF,$00,$00,$00,$00,$3F,$00,$00,$00,$FF,$FF,$78,$F7,$77,$F7,$78,$FF,$00,$00,$00,$00
+     242   00:034C  00 00 00 00 FF FF F8 7B 78 7B F8 FF 00 00 00 00 
+     242   00:035C  3F 00 00 00 FF FF 78 F7 77 F7 78 FF 00 00 00 00 
+     243   00:036C                              DB $F8,$00,$00,$00,$F0,$FF,$7F,$BF,$BF,$BF,$7F,$F0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$C0,$FC,$FE,$FE,$FC,$C0,$00,$00,$00,$00,$00
+     243   00:036C  F8 00 00 00 F0 FF 7F BF BF BF 7F F0 00 00 00 00 
+     243   00:037C  00 00 00 00 00 C0 FC FE FE FC C0 00 00 00 00 00 
+
+    LABELS
+-------------------------------------------------
+00:00000000 X CHKRAM
+00:00000008 X SYNCHR
+00:0000000C X RDSLT
+00:00000010 X CHRGTR
+00:00000014 X WRSLT
+00:00000018 X OUTDO
+00:0000001C   CALSLT
+00:00000020 X DCOMPR
+00:00000024 X ENASLT
+00:00000028 X GETYPR
+00:00000030 X CALLF
+00:00000038 X KEYINT
+00:0000003B X INITIO
+00:0000003E X INIFNK
+00:00000041 X DISSCR
+00:00000044 X ENASCR
+00:00000047   WRTVDP
+00:0000004A X RDVRM
+00:0000004D X WRTVRM
+00:00000050 X SETRD
+00:00000053 X SETWRT
+00:00000056 X FILVRM
+00:00000059 X LDIRMV
+00:0000005C   LDIRVM
+00:0000005F   CHGMOD
+00:00000062 X CHGCLR
+00:00000066 X NMI
+00:00000069 X CLRSPR
+00:0000006C X INITXT
+00:0000006F X INIT32
+00:00000072 X INIGRP
+00:00000075 X INIMLT
+00:00000078 X SETTXT
+00:0000007B X SETT32
+00:0000007E X SETGRP
+00:00000081 X SETMLT
+00:00000084 X CALPAT
+00:00000087 X CALATR
+00:0000008A X GSPSIZ
+00:0000008D X GRPPRT
+00:00000090 X GICINI
+00:00000093 X WRTPSG
+00:00000096 X RDPSG
+00:00000099 X STRTMS
+00:0000009C   CHSNS
+00:0000009F X CHGET
+00:000000A2 X CHPUT
+00:000000A5 X LPTOUT
+00:000000A8 X LPTSTT
+00:000000AB X CNVCHR
+00:000000AE X PINLIN
+00:000000B1 X INLIN
+00:000000B4 X QINLIN
+00:000000B7 X BREAKX
+00:000000BA X ISCNTC
+00:000000BD X CKCNTC
+00:000000C0 X BEEP
+00:000000C3 X CLS
+00:000000C6 X POSIT
+00:000000C9 X FNKSB
+00:000000CC X ERAFNK
+00:000000CF X DSPFNK
+00:000000D2 X TOTEXT
+00:000000D5 X GTSTCK
+00:000000D8 X GTTRIG
+00:000000DB X GTPAD
+00:000000DE X GTPDL
+00:000000E1 X TAPION
+00:000000E4 X TAPIN
+00:000000E7 X TAPIOF
+00:000000EA X TAPOON
+00:000000ED X TAPOUT
+00:000000F0 X TAPOOF
+00:000000F3 X STMOTR
+00:000000F6 X LFTQ
+00:000000F9 X PUTQ
+00:000000FC X RIGHTC
+00:000000FF X LEFTC
+00:00000102 X UPC
+00:00000105 X TUPC
+00:00000108 X DOWNC
+00:0000010B X TDOWNC
+00:0000010E X SCALXY
+00:00000111 X MAPXY
+00:00000114 X FETCHC
+00:00000117 X STOREC
+00:0000011A X SETATR
+00:0000011E X READC
+00:00000120 X SETC
+00:00000123 X NSETCX
+00:00000126 X GTASPC
+00:00000129 X PNTINI
+00:0000012C X SCANR
+00:0000012F X SCANL
+00:00000132 X CHGCAP
+00:00000135 X CHGSND
+00:00000138 X RSLREG
+00:0000013B X WSLREG
+00:0000013E X RDVDP
+00:00000141 X SNSMAT
+00:00000144 X PHYDIO
+00:00000147 X FORMAT
+00:0000014A X ISFLIO
+00:0000014E X OUTDLP
+00:00000150 X GETVCP
+00:00000153 X GETVC2
+00:00000156   KILBUF
+00:00000159 X CALBAS
+00:0000015C X SUBROM
+00:0000015F X EXTROM
+00:00000162 X CHKSLZ
+00:00000165 X CHKNEW
+00:00000168 X EOL
+00:0000016B X BIGFIL
+00:0000016E X NSETRD
+00:00000171 X NSTWRT
+00:00000174 X NRDVRM
+00:00000177 X NWRVRM
+00:0000017A X RDRES
+00:0000017D X WRRES
+00:00000180 X CHGCPU
+00:00000183 X GETCPU
+00:00000186 X PCMPLY
+00:00000189 X PCMREC
+00:0000F3DB X CLIKSW
+00:0000F3E9   FORCLR
+00:0000F3EA   BAKCLR
+00:0000F3EB   BDRCLR
+00:00000000 X CHRTBL
+00:00001800 X NAMTBL
+00:00002000 X CLRTBL
+00:00001B00 X SPRATR
+00:00003800 X SPRTBL
+00:0000FC9E X JIFFY
+00:0000FAF6 X ACPAGE
+00:0000FAF5 X DPPAGE
+00:0000F3DF X RG0SAV
+00:0000F3E0 X RG1SAV
+00:0000F3E1 X RG2SAV
+00:0000F3E2 X RG3SAV
+00:0000F3E3 X RG4SAV
+00:0000F3E4 X RG5SAV
+00:0000F3E5 X RG6SAV
+00:0000F3E6 X RG7SAV
+00:0000FFE7 X RG8SAV
+00:0000FFE8 X RG9SAV
+00:0000FFE9 X RG10SA
+00:0000FFEA X RG11SA
+00:0000FFEB X RG12SA
+00:0000FFEC X RG13SA
+00:0000FFED X RG14SA
+00:0000FFEE X RG15SA
+00:0000FFEF X RG16SA
+00:0000FFF0 X RG17SA
+00:0000FFF1 X RG18SA
+00:0000FFF2 X RG19SA
+00:0000FFF3 X RG20SA
+00:0000FFF4 X RG21SA
+00:0000FFF5 X RG22SA
+00:0000FFF6 X RG23SA
+00:0000FFF7 X ROMSLT
+00:0000FFFA X RG25SA
+00:0000FFFB X RG26SA
+00:0000FFFC X RG27SA
+00:0000FCC1 X EXPTBL0
+00:0000FCC2 X EXPTBL1
+00:0000FCC3 X EXPTBL2
+00:0000FCC4 X EXPTBL3
+00:0000FCC5 X SLTTBL0
+00:0000FCC6 X SLTTBL1
+00:0000FCC7 X SLTTBL2
+00:0000FCC8 X SLTTBL3
+00:0000FD9A X H_KEYI
+00:0000FD9F X H_TIMI
+00:00003800   PATTBL
+00:00001B00   ATTTBL
+00:00000009 X _STROUT
+00:00000161   LOOP
+00:00000184   LOOP.move
+00:000001AF   LOOP.test_keyboard
+00:000001D6   bounce_h
+00:000001E3   bounce_v
+00:000001F0   change_color
+00:000001FB   change_color.cont
+00:00000201   reverse_a
+00:00000209   reverse_a.set1
+00:0000020C   position_sprites
+00:00000219   position_sprites.loop1
+00:00000247   position_sprites.loop2
+00:00000270   set_attrib_pattern_and_color
+00:0000027A   set_attrib_pattern_and_color.loop
+00:00000285   CALL_BIOS
+00:00004100   pos_x
+00:00004101   pos_y
+00:00004102   dir_x
+00:00004103   dir_y
+00:00004104   attrib
+00:00004124   color
+00:00004125   wait
+00:00004126   c_bakclr
+00:00004127   c_bdrclr
+00:0000028C   DVD_SPRITE
+
+
+ Output: main.out
+-------------------------------------------------
+
+ Page: 00
+  Org: 00000100  Size: *  Used: 00000000
+
+    No output
+
+ Output: DVD.COM
+-------------------------------------------------
+
+ Page: 00
+  Org: 00000100  Size: *  Used: 0000028C
+
+   Address   Length Align   Label
+   00000100     652         LOOP
