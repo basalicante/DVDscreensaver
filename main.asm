@@ -10,7 +10,6 @@ include bios.asm
 PATTBL = 0x3800
 ATTTBL = 0x1B00
 
-_STROUT = 09h
 		
 	ld a,6
 	ld (color),a
@@ -228,7 +227,6 @@ dir_y 	#1
 attrib  #4*8 //8 sprites
 color	#1
 wait	#1
-
 c_bakclr	#1
 c_bdrclr	#1
 
