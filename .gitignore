@@ -1,3 +1,5 @@
 /.vscode
 /compile_result.txt
 /_compile.bat
+main.lst
+main.sym
